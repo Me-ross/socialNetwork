@@ -2,7 +2,7 @@
   "name": "socialnetwork",
   "version": "1.0.0",
   "description": "Social Network API using NoSQL",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node index",
     "dev": "nodemon index",
