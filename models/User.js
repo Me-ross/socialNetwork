@@ -35,6 +35,8 @@ const userSchema = new Schema (
     toJSON: {
       virtuals: true,
     },
+    // to remove the addition id field that is created by default which is a duplicate to _id
+    id: false
   }
 );
 
