@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Thought } = require('../models');
 
 module.exports = {
   // create a new user
@@ -10,12 +10,15 @@ module.exports = {
   //Get all users
   getUsers(req, res) {
     User.find()
+      //minus (-) removes the version from the list of returned values   
+      .select('-__v')
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
    // Get a single user
    getSingleUser(req, res) {
     User.findOne({ _id: req.params.userId })
+      //minus (-)removes the version from the list of returned values   
       .select('-__v')
       .then((user) =>
         !user
@@ -33,7 +36,7 @@ module.exports = {
     )
       .then((updatedUser) =>
         !updatedUser
-          ? res.status(404).json({ message: 'No application with this id!' })
+          ? res.status(404).json({ message: 'No user with this id!' })
           : res.json(updatedUser)
       )
       .catch((err) => {
@@ -44,7 +47,14 @@ module.exports = {
    // Delete a user and associated thoughts
    deleteUser(req, res) {
     User.findOneAndDelete({ _id: req.params.userId })
-    .then((deletedUser) => res.json(deletedUser))
+    .then((deletedUser) => 
+      !deletedUser
+        ? res.status(404).json({ message: 'No user with that ID' })
+        : Thought.deleteMany(
+        { username: deletedUser.username}
+      )
+    )
+    .then(() => res.json({ message: 'User and all their thoughts deleted!' }))
     .catch((err) => res.status(500).json(err));
   },
   // Add a friend
@@ -76,17 +86,3 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 };
-
-
-
-// deleteUser(req, res) {
-//     User.findOneAndDelete({ _id: req.params.userId })
-//       .then((user) =>
-//         !user
-//           ? res.status(404).json({ message: 'No user with that ID' })
-//           : Thought.deleteMany
-//           ({ _id: { $in: user.applications } })
-//       )
-//       .then(() => res.json({ message: 'User and associated thoughts deleted!' }))
-//       .catch((err) => res.status(500).json(err));
-//   },
