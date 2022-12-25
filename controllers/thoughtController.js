@@ -80,5 +80,37 @@ createThought(req, res) {
         res.status(500).json(err);
       });
   },
+// Add a Reaction
+  addReaction(req, res) {
+    console.log('You are adding a reaction');
+    console.log(req.body);
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $addToSet: { reactions: req.body } },
+      { runValidators: true, new: true}
+    )
+      .then((reaction) =>
+        !reaction
+          ? res
+              .status(404)
+              .json({ message: 'No thought found with that ID :(' })
+          : res.json(reaction)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+    // Remove reaction from a thought
+  removeReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
+    )
+      .then((updatedThought) =>
+        !updatedThought
+          ? res.status(404).json({ message: 'No thought found with that ID :(' })
+          : res.json(updatedThought)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
 
 };
